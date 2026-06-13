@@ -10,6 +10,7 @@
 - コードなし・AI なし・ゼロコスト
 
 設定値の正確な記録（クエリ・フィード URL・変更履歴）は [Issues](../../issues?q=is%3Aissue) に残す。
+フィードに流れにくい定番制度は [data/subsidy-master.yaml](data/subsidy-master.yaml) で管理する。
 
 ## 段階導入計画
 

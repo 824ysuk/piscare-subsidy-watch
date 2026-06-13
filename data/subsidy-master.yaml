@@ -1,0 +1,211 @@
+# 定番制度マスタ。フィード型収集で拾いにくい制度を半期ごとに一次情報で再確認する。
+schema_version: 1
+verified_at: 2026-06-13
+items:
+  - id: business-improvement-r8
+    name: 業務改善助成金 R8
+    owner: 厚生労働省
+    category: wage_increase
+    target_eligible: true
+    target_reason: 中小企業・小規模事業者の賃上げと生産性向上設備投資が対象。訪問看護事業所も労働者を雇用する事業場として候補になる。
+    schedule:
+      type: fixed_date
+      next_event: 2026-09-01
+      next_event_kind: 交付申請受付開始
+    status: upcoming
+    verification_status: verified
+    source_urls:
+      - https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/roudoukijun/zigyonushi/shienjigyou/03.html
+    notes:
+      - 令和8年度の交付申請受付開始日は 2026-09-01 と公式ページで確認。
+      - 助成対象経費や上限額は年度要領で変わるため申請前に再確認する。
+
+  - id: fukuoka-visit-nursing-work-environment
+    name: 福岡県勤務環境改善促進費（訪問看護事業所）
+    owner: 福岡県
+    category: prefectural_healthcare
+    target_eligible: true
+    target_reason: 訪問看護事業所向けの県基金系支援として監視対象。後継や類似事業が出た場合は piscare への関連度が高い。
+    schedule:
+      type: monitoring
+      next_event: null
+      next_event_kind: 後継事業の告知監視
+      monitoring_window: 通年
+    status: closed_or_unannounced
+    verification_status: needs_recheck
+    source_urls:
+      - https://www.pref.fukuoka.lg.jp/
+    notes:
+      - Issue #4 時点では最終回が 2025-10-10 締切終了、後継未発表として記録。
+      - 福岡県サイト内の恒久 URL は未特定。次回更新時に一次情報 URL を差し替える。
+
+  - id: fukuoka-care-dx-r8
+    name: 福岡県介護DX 補助金 R8
+    owner: 福岡県
+    category: prefectural_care_dx
+    target_eligible: true
+    target_reason: 介護・医療福祉系 DX 支援は訪問看護の業務効率化と近接する。対象職種・法人区分は公募要領で確認する。
+    schedule:
+      type: monitoring_window
+      next_event: 2026-06-01
+      next_event_kind: 告知監視開始
+      monitoring_window: 2026-06〜2026-07
+    status: monitoring
+    verification_status: needs_recheck
+    source_urls:
+      - https://www.pref.fukuoka.lg.jp/
+    notes:
+      - Issue #4 時点では R8 未発表、例年 6-7 月告知監視期として記録。
+      - 公募名が介護ロボット・ICT 導入支援等に変わる可能性がある。
+
+  - id: kurume-work-life-balance
+    name: 久留米市WLB 補助金
+    owner: 久留米市
+    category: local_work_life_balance
+    target_eligible: conditional
+    target_reason: 市内事業者向けだが、くるみん等の国認定が前提となる可能性があるため対象条件を満たす場合のみ候補。
+    schedule:
+      type: monitoring
+      next_event: null
+      next_event_kind: 募集状況確認
+      monitoring_window: 通年
+    status: open_or_monitoring
+    verification_status: needs_recheck
+    source_urls:
+      - https://www.city.kurume.fukuoka.jp/
+    notes:
+      - Issue #4 時点では募集中、定額 20 万円、くるみん等国認定が前提として記録。
+      - 久留米市サイト内の恒久 URL は未特定。申請判断前に募集ページを確認する。
+
+  - id: digital-ai-subsidy-2026
+    name: デジタル化・AI導入補助金2026
+    owner: 中小企業庁・中小機構
+    category: digitalization
+    target_eligible: true
+    target_reason: 中小企業向けのデジタル化・AI 導入支援。訪問看護の業務システム・セキュリティ・効率化投資が候補になる。
+    schedule:
+      type: fixed_date
+      next_event: 2026-06-15
+      next_event_kind: 通常枠 2 次締切
+    status: open
+    verification_status: partial
+    source_urls:
+      - https://it-shien.smrj.go.jp/
+      - https://www.chusho.meti.go.jp/koukai/hojyokin/kobo/2026/260310001.html
+    notes:
+      - Issue #4 時点では通常枠 2 次締切が 2026-06-15 と記録。
+      - 公式ポータルの詳細締切ページは申請前に再確認する。
+
+  - id: sustainability-subsidy-20
+    name: 小規模事業者持続化補助金 第20回
+    owner: 全国商工会連合会・日本商工会議所
+    category: small_business
+    target_eligible: conditional
+    target_reason: 小規模事業者向け。医療法人除外や常時使用従業員数などの要件次第で対象外になり得る。
+    schedule:
+      type: monitoring
+      next_event: null
+      next_event_kind: 第20回公募開始監視
+      monitoring_window: 2026 春〜夏
+    status: preparing
+    verification_status: verified
+    source_urls:
+      - https://r6.jizokukahojokin.info/
+    notes:
+      - 公式サイトで第20回は準備中、第19回は公募締切済みと確認。
+      - 対象法人区分と従業員数要件を申請前に再確認する。
+
+  - id: cev-subsidy-r7-supplement
+    name: CEV 補助金（令和7年度補正）
+    owner: 次世代自動車振興センター
+    category: vehicle
+    target_eligible: conditional
+    target_reason: 法人申請枠はあるが、車両の登録区分・用途・保有義務に制約があるため社用車購入時のみ候補。
+    schedule:
+      type: open_since
+      next_event: 2026-03-31
+      next_event_kind: 申請受付開始
+    status: open
+    verification_status: verified
+    source_urls:
+      - https://www.cev-pc.or.jp/hojo/cev.html
+    notes:
+      - 公式ページで 2026-03-31 申請受付開始を確認。
+      - 法人・地方公共団体向け手続きがあることを確認。
+      - 補助金を受けた車両は原則 4 年または 3 年の保有義務がある。
+
+  - id: nippon-foundation-welfare-vehicle
+    name: 日本財団 福祉車両助成
+    owner: 日本財団
+    category: welfare_vehicle
+    target_eligible: false
+    target_reason: 対象団体が社会福祉法人、NPO、公益法人、非営利性が徹底された一般法人等に限られ、株式会社は対象外と判断。
+    schedule:
+      type: monitoring
+      next_event: null
+      next_event_kind: 年度募集確認
+      monitoring_window: 年次
+    status: not_target
+    verification_status: verified
+    source_urls:
+      - https://www.nippon-foundation.or.jp/grant_application/programs/cars
+    notes:
+      - 公式ページで対象団体が非営利法人中心であることを確認。
+      - 訪問・相談・配食サービス等、職員や物品等の移動を主とする事業は対象外事項として記載あり。
+
+  - id: career-up-subsidy-r8
+    name: キャリアアップ助成金 R8
+    owner: 厚生労働省
+    category: employment
+    target_eligible: true
+    target_reason: 有期雇用・短時間労働者等の正社員化や処遇改善を行う事業主向け。訪問看護事業所の雇用形態改善と関連する。
+    schedule:
+      type: ongoing
+      next_event: null
+      next_event_kind: コース実施前の計画提出
+      monitoring_window: 通年
+    status: open
+    verification_status: verified
+    source_urls:
+      - https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/part_haken/jigyounushi/career.html
+    notes:
+      - 公式ページで令和8年度版パンフレット公開と制度概要を確認。
+      - 活用時は各コース実施日の前日までにキャリアアップ計画等の提出が必要。
+
+  - id: human-resource-development-subsidy-r8
+    name: 人材開発支援助成金 R8
+    owner: 厚生労働省
+    category: training
+    target_eligible: true
+    target_reason: 従業員の職業訓練・人材育成に関する助成。看護・介護関連研修や DX 研修の候補になり得る。
+    schedule:
+      type: ongoing
+      next_event: null
+      next_event_kind: 訓練計画の事前確認
+      monitoring_window: 通年
+    status: open
+    verification_status: verified
+    source_urls:
+      - https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/koyou/kyufukin/d01-1.html
+    notes:
+      - 公式ページで制度ページの存在を確認。
+      - コース別要件と訓練計画の提出期限は申請前に再確認する。
+
+  - id: work-life-balance-support-subsidy-r8
+    name: 両立支援等助成金 R8
+    owner: 厚生労働省
+    category: work_life_balance
+    target_eligible: true
+    target_reason: 育児・介護等と仕事の両立支援に取り組む事業主向け。人材定着や介護離職防止施策と関連する。
+    schedule:
+      type: ongoing
+      next_event: null
+      next_event_kind: コース別要件確認
+      monitoring_window: 通年
+    status: open
+    verification_status: verified
+    source_urls:
+      - https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kodomo/shokuba_kosodate/ryouritsu01/index.html
+    notes:
+      - 公式ページで制度ページの存在を確認。
+      - 育休復帰・介護離職防止等のコース別要件は申請前に再確認する。
