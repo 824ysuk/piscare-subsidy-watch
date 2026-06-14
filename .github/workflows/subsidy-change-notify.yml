@@ -9,10 +9,10 @@ on:
   workflow_dispatch:
     inputs:
       base_sha:
-        description: '比較元の git SHA（省略時は HEAD~1）'
+        description: '比較元の SHA（空欄で自動：subsidy-master.yaml の1つ前の変更時点）'
         required: false
       pr_number:
-        description: 'PR 番号（省略可）'
+        description: 'PR 番号（空欄可）'
         required: false
 
 jobs:
@@ -38,6 +38,14 @@ jobs:
           BASE_SHA_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.base_sha || github.event.pull_request.base.sha }}
           PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || github.event.pull_request.number }}
         run: |
-          BASE_SHA="${BASE_SHA_INPUT:-$(git rev-parse HEAD~1)}"
+          if [ -z "$BASE_SHA_INPUT" ]; then
+            BASE_SHA="$(git log --format="%H" -- data/subsidy-master.yaml | sed -n '2p')"
+            if [ -z "$BASE_SHA" ]; then
+              echo "ERROR: subsidy-master.yaml の変更履歴が 1 件のみです。base_sha を入力してください。" >&2
+              exit 1
+            fi
+          else
+            BASE_SHA="$BASE_SHA_INPUT"
+          fi
           export BASE_SHA
           python scripts/change_notify.py

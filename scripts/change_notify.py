@@ -26,6 +26,43 @@ MASTER_PATH = REPO_ROOT / "data" / "subsidy-master.yaml"
 MASTER_URL = "https://github.com/824ysuk/piscare-subsidy-watch/blob/main/data/subsidy-master.yaml"
 REPO_URL = "https://github.com/824ysuk/piscare-subsidy-watch"
 
+# Slack 表示用ラベル（英語の内部値 → 日本語）
+_VERIFICATION_LABELS: dict[str, str] = {
+    "verified": "確認済み",
+    "needs_recheck": "要再確認",
+    "partial": "一部確認",
+}
+_STATUS_LABELS: dict[str, str] = {
+    "open": "申請受付中",
+    "upcoming": "公募予定",
+    "monitoring": "告知監視中",
+    "open_or_monitoring": "受付中/監視中",
+    "preparing": "準備中",
+    "closed_or_unannounced": "終了/未発表",
+    "not_target": "対象外",
+}
+_FIELD_LABELS: dict[str, str] = {
+    "verification_status": "確認状況",
+    "status": "申請状況",
+    "next_event": "次回日程",
+    "next_event_kind": "イベント種別",
+}
+
+
+def _human_value(field: str, value: Any) -> str:
+    """内部値を Slack 表示用の日本語に変換する。"""
+    if value is None:
+        return "（未設定）"
+    if field == "verification_status":
+        return _VERIFICATION_LABELS.get(str(value), str(value))
+    if field == "status":
+        return _STATUS_LABELS.get(str(value), str(value))
+    # date オブジェクトは YYYY年M月D日 形式に
+    from datetime import date as _date
+    if isinstance(value, _date):
+        return f"{value.year}年{value.month}月{value.day}日"
+    return str(value)
+
 
 def load_yaml_str(text: str) -> dict[str, Any]:
     data = yaml.safe_load(text)
@@ -91,25 +128,25 @@ def detect_changes(
         bv = before_item.get("verification_status")
         av = item.get("verification_status")
         if bv != av:
-            diffs.append(f"verification_status: `{bv}` → `{av}`")
+            label = _FIELD_LABELS["verification_status"]
+            diffs.append(f"{label}: {_human_value('verification_status', bv)} → {_human_value('verification_status', av)}")
 
         bs = before_item.get("status")
         as_ = item.get("status")
         if bs != as_:
-            diffs.append(f"status: `{bs}` → `{as_}`")
+            label = _FIELD_LABELS["status"]
+            diffs.append(f"{label}: {_human_value('status', bs)} → {_human_value('status', as_)}")
 
         b_sched = before_item.get("schedule") or {}
         a_sched = item.get("schedule") or {}
 
         if _str(b_sched.get("next_event")) != _str(a_sched.get("next_event")):
-            diffs.append(
-                f"next_event: `{b_sched.get('next_event')}` → `{a_sched.get('next_event')}`"
-            )
+            label = _FIELD_LABELS["next_event"]
+            diffs.append(f"{label}: {_human_value('next_event', b_sched.get('next_event'))} → {_human_value('next_event', a_sched.get('next_event'))}")
 
         if b_sched.get("next_event_kind") != a_sched.get("next_event_kind"):
-            diffs.append(
-                f"next_event_kind: `{b_sched.get('next_event_kind')}` → `{a_sched.get('next_event_kind')}`"
-            )
+            label = _FIELD_LABELS["next_event_kind"]
+            diffs.append(f"{label}: {_human_value('next_event_kind', b_sched.get('next_event_kind'))} → {_human_value('next_event_kind', a_sched.get('next_event_kind'))}")
 
         if not diffs:
             continue
