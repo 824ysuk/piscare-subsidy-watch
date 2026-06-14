@@ -6,10 +6,18 @@ on:
     branches: [main]
     paths:
       - 'data/subsidy-master.yaml'
+  workflow_dispatch:
+    inputs:
+      base_sha:
+        description: '比較元の git SHA（省略時は HEAD~1）'
+        required: false
+      pr_number:
+        description: 'PR 番号（省略可）'
+        required: false
 
 jobs:
   notify:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -27,6 +35,9 @@ jobs:
       - name: Post change summary to Slack
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: python scripts/change_notify.py
+          BASE_SHA_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.base_sha || github.event.pull_request.base.sha }}
+          PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || github.event.pull_request.number }}
+        run: |
+          BASE_SHA="${BASE_SHA_INPUT:-$(git rev-parse HEAD~1)}"
+          export BASE_SHA
+          python scripts/change_notify.py
