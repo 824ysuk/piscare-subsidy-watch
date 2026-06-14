@@ -1,6 +1,6 @@
 # 定番制度マスタ。フィード型収集で拾いにくい制度を半期ごとに一次情報で再確認する。
 schema_version: 1
-verified_at: 2026-06-13
+verified_at: 2026-06-14
 items:
   - id: business-improvement-r8
     name: 業務改善助成金 R8
@@ -32,12 +32,12 @@ items:
       next_event_kind: 後継事業の告知監視
       monitoring_window: 通年
     status: closed_or_unannounced
-    verification_status: needs_recheck
+    verification_status: verified
     source_urls:
-      - https://www.pref.fukuoka.lg.jp/
+      - https://www.pref.fukuoka.lg.jp/contents/seisannseikoujou-01.html
     notes:
       - Issue #4 時点では最終回が 2025-10-10 締切終了、後継未発表として記録。
-      - 福岡県サイト内の恒久 URL は未特定。次回更新時に一次情報 URL を差し替える。
+      - 2026-06-14 確認: 最終募集（令和8年2月28日締切）が終了。公式ページに「今回の募集が最後となります」と明記され事業終了が確認できた。後継事業は現時点で未発表。
 
   - id: fukuoka-care-dx-r8
     name: 福岡県介護DX 補助金 R8
@@ -53,9 +53,10 @@ items:
     status: monitoring
     verification_status: needs_recheck
     source_urls:
-      - https://www.pref.fukuoka.lg.jp/
+      - https://www.pref.fukuoka.lg.jp/contents/kaigodx.html
     notes:
       - Issue #4 時点では R8 未発表、例年 6-7 月告知監視期として記録。
+      - 正式名称は「福岡県介護DX支援事業費補助金」。R7（申請受付 2025-07-11〜2025-08-29）は終了。R8 は 2026-06-14 時点で未発表。
       - 公募名が介護ロボット・ICT 導入支援等に変わる可能性がある。
 
   - id: kurume-work-life-balance
@@ -65,17 +66,16 @@ items:
     target_eligible: conditional
     target_reason: 市内事業者向けだが、くるみん等の国認定が前提となる可能性があるため対象条件を満たす場合のみ候補。
     schedule:
-      type: monitoring
-      next_event: null
-      next_event_kind: 募集状況確認
-      monitoring_window: 通年
-    status: open_or_monitoring
-    verification_status: needs_recheck
+      type: open_since
+      next_event: 2027-03-31
+      next_event_kind: 申請期限
+    status: open
+    verification_status: verified
     source_urls:
-      - https://www.city.kurume.fukuoka.jp/
+      - https://www.city.kurume.fukuoka.jp/1090sangyou/2060koyouroudou/3080ryouritu/2026-0319-1004-80.html
     notes:
       - Issue #4 時点では募集中、定額 20 万円、くるみん等国認定が前提として記録。
-      - 久留米市サイト内の恒久 URL は未特定。申請判断前に募集ページを確認する。
+      - 2026-06-14 確認: 令和8年度募集中。補助額は定額 20 万円。市内に本社・事業所を有し、くるみん・えるぼし・ユースエールのいずれかを R8 に新規取得した中小企業が対象。申請期限は要件充足日翌日から 2 か月経過日または 2027-03-31 のいずれか早い方。
 
   - id: digital-ai-subsidy-2026
     name: デジタル化・AI導入補助金2026
@@ -86,15 +86,15 @@ items:
     schedule:
       type: fixed_date
       next_event: 2026-06-15
-      next_event_kind: 通常枠 2 次締切
+      next_event_kind: 交付申請 1 次締切
     status: open
-    verification_status: partial
+    verification_status: verified
     source_urls:
       - https://it-shien.smrj.go.jp/
-      - https://www.chusho.meti.go.jp/koukai/hojyokin/kobo/2026/260310001.html
+      - https://it-shien.smrj.go.jp/schedule/
     notes:
-      - Issue #4 時点では通常枠 2 次締切が 2026-06-15 と記録。
-      - 公式ポータルの詳細締切ページは申請前に再確認する。
+      - Issue #4 時点では通常枠 2 次締切が 2026-06-15 と記録（表現は不正確、正しくは交付申請 1 次締切）。
+      - 2026-06-14 確認: 公式スケジュールページで 2026-06-15（月）17:00 が交付申請 1 次締切と確認。交付決定予定 2026-07-23。2 次以降のスケジュールは随時公開予定。
 
   - id: sustainability-subsidy-20
     name: 小規模事業者持続化補助金 第20回
