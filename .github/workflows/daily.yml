@@ -23,7 +23,7 @@ jobs:
           cache: 'pip'
 
       - name: Restore seen URLs cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: state/seen_urls.json
           key: seen-urls-${{ github.run_number }}
