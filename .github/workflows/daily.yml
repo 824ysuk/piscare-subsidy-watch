@@ -1,0 +1,44 @@
+name: Daily Subsidy Collection
+
+on:
+  schedule:
+    # JST 09:00 = UTC 00:00
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run（Slack 投稿と state 更新をスキップ）'
+        type: boolean
+        default: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Restore seen URLs cache
+        uses: actions/cache@v4
+        with:
+          path: state/seen_urls.json
+          key: seen-urls-${{ github.run_number }}
+          restore-keys: |
+            seen-urls-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Collect and post
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python scripts/collect.py --dry-run
+          else
+            python scripts/collect.py
+          fi
