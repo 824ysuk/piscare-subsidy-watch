@@ -1,0 +1,26 @@
+name: Weekly Subsidy Reminder
+
+on:
+  schedule:
+    # JST 月曜 09:00 = UTC 月曜 00:00
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Post weekly summary to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python scripts/weekly_reminder.py
