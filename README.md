@@ -7,7 +7,8 @@
 - Slack: piscare ワークスペースの鍵付きチャンネル `#補助金情報`
 - 購読フィード 5 本（`/feed list` で確認可能、最終設計は [Issue #5](../../issues/5) 参照）
   - Google アラート 5 本: 久留米市 / 福岡県医療介護 / 厚労省看護介護助成 / 中小企業向け国補助金 / 車両（CEV補助金等）
-- コードなし・AI なし・ゼロコスト
+- 週次サマリ: GitHub Actions cron が毎週月曜 9:00 JST に [data/subsidy-master.yaml](data/subsidy-master.yaml) を読み Slack に投稿（[Issue #4](../../issues/4)）
+- 語彙定義は [CONTEXT.md](CONTEXT.md) 参照
 
 設定値の正確な記録（クエリ・フィード URL・変更履歴）は [Issues](../../issues?q=is%3Aissue) に残す。
 フィードに流れにくい定番制度は [data/subsidy-master.yaml](data/subsidy-master.yaml) で管理する。
@@ -17,7 +18,7 @@
 | 段階 | 内容 | 状態 |
 |---|---|---|
 | v0 | Google アラート + Slack `/feed`（ゼロコード） | 稼働中 |
-| v1 | 狭域クエリ収集スクリプト（J-Net21 検索 + jGrants API）+ 定番マスタ YAML + GitHub Actions | 計画中 |
+| v1 | 定番マスタ YAML + 週次サマリリマインダー（Issue #4）/ 狭域クエリ収集スクリプト（Issue #3） | 着手中 |
 | v2 | LLM（Claude Haiku）によるノイズフィルタ | 構想 |
 
 ## 背景
