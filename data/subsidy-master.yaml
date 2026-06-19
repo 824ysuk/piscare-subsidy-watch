@@ -84,17 +84,19 @@ items:
     target_eligible: true
     target_reason: 中小企業向けのデジタル化・AI 導入支援。訪問看護の業務システム・セキュリティ・効率化投資が候補になる。
     schedule:
-      type: fixed_date
-      next_event: 2026-06-15
-      next_event_kind: 交付申請 1 次締切
-    status: open
-    verification_status: verified
+      type: monitoring
+      next_event: null
+      next_event_kind: 2次締切告知監視
+      monitoring_window: 2026-07以降随時
+    status: monitoring
+    verification_status: needs_recheck
     source_urls:
       - https://it-shien.smrj.go.jp/
       - https://it-shien.smrj.go.jp/schedule/
     notes:
       - Issue #4 時点では通常枠 2 次締切が 2026-06-15 と記録（表現は不正確、正しくは交付申請 1 次締切）。
       - 2026-06-14 確認: 公式スケジュールページで 2026-06-15（月）17:00 が交付申請 1 次締切と確認。交付決定予定 2026-07-23。2 次以降のスケジュールは随時公開予定。
+      - 2026-06-19 更新: 1次締切通過。2次以降のスケジュールは未発表のため告知監視中に移行。
 
   - id: sustainability-subsidy-20
     name: 小規模事業者持続化補助金 第20回
