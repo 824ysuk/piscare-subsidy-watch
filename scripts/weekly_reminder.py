@@ -79,6 +79,7 @@ def classify(items: list[dict[str, Any]], today: date) -> dict[str, list[dict[st
     open_since: list[dict[str, Any]] = []
     monitoring: list[dict[str, Any]] = []
     ongoing: list[dict[str, Any]] = []
+    unclassified: list[dict[str, Any]] = []
 
     cutoff = today + timedelta(days=LOOKAHEAD_DAYS)
 
@@ -98,6 +99,15 @@ def classify(items: list[dict[str, Any]], today: date) -> dict[str, list[dict[st
             ongoing.append(item)
         elif status in MONITORING_STATUSES:
             monitoring.append(item)
+        else:
+            unclassified.append(item)
+
+    if unclassified:
+        ids = [item.get("id", "<no id>") for item in unclassified]
+        raise ValueError(
+            f"週次サマリに分類できない制度があります: {ids}\n"
+            "status / schedule.type の組み合わせを確認してください。"
+        )
 
     upcoming.sort(key=lambda x: parse_date(x["schedule"]["next_event"]) or date.max)
 
