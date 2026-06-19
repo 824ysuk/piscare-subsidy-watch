@@ -72,6 +72,8 @@ items:
 
 申請状況の現在ステート。`schedule.type` がスケジュール構造を表すのに対し、`status` は時間軸上の現在位置を表す。
 
+**`scripts/_schema.py:ALLOWED_STATUSES` が validate の正本。値追加時は本表と `_schema.py` を同時更新する。**
+
 | 値 | 意味 |
 |---|---|
 | `upcoming` | 受付開始日が将来 |
@@ -84,6 +86,8 @@ items:
 ### `verification_status`
 
 一次情報による検証状態。半期再検証フローの入力。
+
+**`scripts/_schema.py:ALLOWED_VERIFICATION_STATUSES` が validate の正本。値追加時は本表と `_schema.py` を同時更新する。**
 
 | 値 | 意味 |
 |---|---|

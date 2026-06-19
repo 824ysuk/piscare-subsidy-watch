@@ -18,6 +18,8 @@ from urllib.request import Request, urlopen
 
 import yaml
 
+from _schema import validate_items
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MASTER_PATH = REPO_ROOT / "data" / "subsidy-master.yaml"
 
@@ -27,8 +29,8 @@ LOOKAHEAD_DAYS = 180
 # 表示から除外するステータス。closed_or_unannounced は終了済み、not_target は target_eligible:false と pair。
 EXCLUDED_STATUSES = {"closed_or_unannounced", "not_target"}
 
-# 告知監視期セクションに含めるステータス。
-MONITORING_STATUSES = {"monitoring", "preparing", "open_or_monitoring"}
+# 告知監視期セクションに含めるステータス。CONTEXT.md の status 6 値と整合。
+MONITORING_STATUSES = {"monitoring", "preparing"}
 
 MASTER_URL = "https://github.com/824ysuk/piscare-subsidy-watch/blob/main/data/subsidy-master.yaml"
 
@@ -211,6 +213,7 @@ def main() -> int:
     items = master.get("items") or []
     if not isinstance(items, list):
         raise ValueError(f"master.items must be a list, got {type(items).__name__}")
+    validate_items(items)
 
     classified = classify(items, today)
     text = build_message(classified, today, master.get("verified_at"))

@@ -21,26 +21,13 @@ from urllib.request import Request, urlopen
 
 import yaml
 
+from _schema import STATUS_LABELS, VERIFICATION_LABELS, validate_items
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MASTER_PATH = REPO_ROOT / "data" / "subsidy-master.yaml"
 MASTER_URL = "https://github.com/824ysuk/piscare-subsidy-watch/blob/main/data/subsidy-master.yaml"
 REPO_URL = "https://github.com/824ysuk/piscare-subsidy-watch"
 
-# Slack 表示用ラベル（英語の内部値 → 日本語）
-_VERIFICATION_LABELS: dict[str, str] = {
-    "verified": "確認済み",
-    "needs_recheck": "要再確認",
-    "partial": "一部確認",
-}
-_STATUS_LABELS: dict[str, str] = {
-    "open": "申請受付中",
-    "upcoming": "公募予定",
-    "monitoring": "告知監視中",
-    "open_or_monitoring": "受付中/監視中",
-    "preparing": "準備中",
-    "closed_or_unannounced": "終了/未発表",
-    "not_target": "対象外",
-}
 _FIELD_LABELS: dict[str, str] = {
     "verification_status": "確認状況",
     "status": "申請状況",
@@ -54,9 +41,9 @@ def _human_value(field: str, value: Any) -> str:
     if value is None:
         return "（未設定）"
     if field == "verification_status":
-        return _VERIFICATION_LABELS.get(str(value), str(value))
+        return VERIFICATION_LABELS.get(str(value), str(value))
     if field == "status":
-        return _STATUS_LABELS.get(str(value), str(value))
+        return STATUS_LABELS.get(str(value), str(value))
     # date オブジェクトは YYYY年M月D日 形式に
     from datetime import date as _date
     if isinstance(value, _date):
@@ -246,6 +233,7 @@ def main() -> int:
         before = load_yaml_str(git_show_master(base_sha))
 
     after = load_master(Path(args.after_file)) if args.after_file else load_master(MASTER_PATH)
+    validate_items(after.get("items") or [])
 
     changes = detect_changes(before, after)
     if not changes:
