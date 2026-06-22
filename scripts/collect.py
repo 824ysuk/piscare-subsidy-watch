@@ -28,13 +28,42 @@ JNET21_ARTICLE_BASE = "https://j-net21.smrj.go.jp/snavi2/"
 JNET21_QUERIES: list[str] = ["久留米", "福岡 訪問看護", "福岡 介護", "福岡 看護"]
 JGRANTS_QUERIES: list[str] = ["福岡", "介護", "訪問看護"]
 
-# J-Net21 地域フィルタ: タイトルに含まれるべき文字列
-REGION_INCLUDE: tuple[str, ...] = ("久留米", "福岡", "全国")
-# 東久留米市（東京都）は久留米クエリの誤ヒット率が高い（実測で6件中4件）ため除外
-REGION_EXCLUDE: tuple[str, ...] = ("東久留米",)
+# J-Net21 3 層 deterministic filter（タイトルベースで noise を構造的に排除する）
+#
+# Layer 1: 行政 prefix（【...】）の解析でジオロケーションを判定する。
+# 福岡県は県政（県内事業者対象）なので allow、久留米市は市政の allow 対象。
+# 福岡県内の他市町村（宗像・北九州・福岡市等）はピスケアの場合申請対象外。
+PREFECTURE_ALLOW: frozenset[str] = frozenset({"福岡県"})
+MUNICIPALITY_ALLOW: frozenset[str] = frozenset({"久留米市", "福岡県久留米市"})
+
+# Layer 2: タイトル先頭の type prefix（「〇〇：」形式）で補助金本体でないものを除外する。
+# 「セミナー・イベント：〜」「専門家向け公募：〜」等。
+TYPE_EXCLUDE: frozenset[str] = frozenset({
+    "セミナー・イベント",
+    "専門家向け公募",
+    "展示会情報",
+    "イベント出展者募集",
+    "募集",
+})
+
+# Layer 3: 訪問看護と無関係な業種固有 keyword をタイトル中から検出して除外する。
+INDUSTRY_DISALLOW: tuple[str, ...] = (
+    "農業者", "畜産農家", "漁業", "水産", "林業",
+    "森林", "農林水産", "農産物",
+)
+
+# Defense in depth: prefix がなくても明示除外する地名。
+# 東久留米（東京都）は「久留米」クエリの誤ヒット率が高い（実測で 6 件中 4 件）。
+TITLE_DENY_SUBSTRING: tuple[str, ...] = ("東久留米",)
 
 # jGrants 地域フィルタ: target_area_search に含まれるべき文字列
 JGRANTS_REGION_INCLUDE: tuple[str, ...] = ("福岡", "全国")
+
+_ADMIN_PREFIX_RE = re.compile(r"^【([^】]+)】")
+_TYPE_PREFIX_RE = re.compile(r"^([^：:]{1,20})[：:]")
+# 【】なしで先頭にある市町村名（例: 「古賀市〇〇」「久留米市〇〇」「福岡県久留米市〇〇」）。
+# 全角・半角の開き括弧と 【「 を含まない 2-8 文字で末尾が市町村のもの。
+_BARE_MUNICIPALITY_RE = re.compile(r"^([^\s（(【「]{2,8}?[市町村])")
 
 _USER_AGENT = "piscare-subsidy-watch/1.0"
 
@@ -129,19 +158,101 @@ def fetch_jgrants(keyword: str) -> list[dict[str, str]]:
     return items
 
 
-def is_jnet21_target(item: dict[str, str]) -> bool:
-    title = item["title"]
-    if any(ex in title for ex in REGION_EXCLUDE):
+def classify_admin_prefix(title: str) -> tuple[bool, str]:
+    """タイトル先頭の【...】を解析して (allow, reason) を返す（Layer 1）。
+
+    prefix がない場合は国制度の可能性を残して allow を返す（Layer 2/3 で再判定する）。
+    """
+    m = _ADMIN_PREFIX_RE.match(title)
+    if not m:
+        return True, "no-prefix"
+    prefix = m.group(1)
+    if prefix in PREFECTURE_ALLOW:
+        return True, "prefecture"
+    if prefix.endswith(("県", "都", "府", "道")):
+        return False, f"other-prefecture:{prefix}"
+    if prefix.endswith(("市", "町", "村")):
+        if prefix in MUNICIPALITY_ALLOW:
+            return True, "municipality"
+        # 「福岡県久留米市」のような県＋市町村の複合 prefix
+        for pref in PREFECTURE_ALLOW:
+            if prefix.startswith(pref) and prefix[len(pref):] in MUNICIPALITY_ALLOW:
+                return True, "municipality-composite"
+        return False, f"other-municipality:{prefix}"
+    return True, "unknown-prefix"
+
+
+def is_type_excluded(title: str) -> bool:
+    """タイトル先頭（【...】を除いた後）の type prefix が補助金本体でないか判定する（Layer 2）。"""
+    body = _ADMIN_PREFIX_RE.sub("", title).lstrip()
+    m = _TYPE_PREFIX_RE.match(body)
+    if not m:
         return False
-    return any(inc in title for inc in REGION_INCLUDE)
+    return m.group(1).strip() in TYPE_EXCLUDE
+
+
+def is_industry_excluded(title: str) -> bool:
+    """訪問看護と無関係な業種固有 keyword が含まれているか判定する（Layer 3）。"""
+    return any(kw in title for kw in INDUSTRY_DISALLOW)
+
+
+def classify_bare_municipality_prefix(title: str) -> tuple[bool, str]:
+    """タイトル先頭の【】なし市町村名（例: 「古賀市〇〇」）を判定する（Layer 1b）。
+
+    jGrants は「古賀市温室効果ガス〜」のように 【】 なしで市町村名から始まる
+    タイトルが多いため、Layer 1 を補完する。検出できなければ allow を返す。
+    """
+    m = _BARE_MUNICIPALITY_RE.match(title)
+    if not m:
+        return True, "no-bare-municipality"
+    bare = m.group(1)
+    if bare in MUNICIPALITY_ALLOW:
+        return True, "bare-municipality"
+    for pref in PREFECTURE_ALLOW:
+        if bare.startswith(pref) and bare[len(pref):] in MUNICIPALITY_ALLOW:
+            return True, "bare-municipality-composite"
+    return False, f"other-bare-municipality:{bare}"
+
+
+def is_title_target(title: str) -> bool:
+    """タイトルベース 4 層 deterministic filter（J-Net21 / jGrants 共用）。
+
+      - Defense: TITLE_DENY_SUBSTRING の文字列を含むタイトルを排除
+      - Layer 1: 行政 prefix（【...】）の解析（他県・他市町村を排除）
+      - Layer 1b: 【】なしの市町村 prefix の判定（jGrants 向け補完）
+      - Layer 2: type prefix（「セミナー・イベント：」等）の除外
+      - Layer 3: 業種固有 keyword（農業者・水産 等）の除外
+    """
+    if any(kw in title for kw in TITLE_DENY_SUBSTRING):
+        return False
+    allow, _ = classify_admin_prefix(title)
+    if not allow:
+        return False
+    allow, _ = classify_bare_municipality_prefix(title)
+    if not allow:
+        return False
+    if is_type_excluded(title):
+        return False
+    if is_industry_excluded(title):
+        return False
+    return True
+
+
+def is_jnet21_target(item: dict[str, str]) -> bool:
+    return is_title_target(item["title"])
 
 
 def is_jgrants_target(item: dict[str, str]) -> bool:
+    """jGrants item を area + title 両方で判定する。
+
+    area で都道府県レベル絞り込み（target_area_search が「福岡」「全国」を含む）し、
+    title で 市町村・type・業種の判定を行う。
+    """
     area = item.get("area", "")
-    # area 未設定の場合はキーワード検索で絞られているためスルー
-    if not area:
-        return True
-    return any(inc in area for inc in JGRANTS_REGION_INCLUDE)
+    # area 設定済みかつ JGRANTS_REGION_INCLUDE に含まれなければ即 deny
+    if area and not any(inc in area for inc in JGRANTS_REGION_INCLUDE):
+        return False
+    return is_title_target(item["title"])
 
 
 def collect_all() -> list[dict[str, str]]:

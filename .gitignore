@@ -1,2 +1,6 @@
 # GitHub Actions cache で管理するため git 管理外
 state/seen_urls.json
+
+# Python キャッシュ
+__pycache__/
+*.pyc
